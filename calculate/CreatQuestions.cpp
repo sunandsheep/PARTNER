@@ -28,6 +28,20 @@ void CreatQuestions(int number, int range)
 	figure[4] = figure[5] = figure[6] = figure[7] = 1;
 
 	srand(time(NULL));
+	title_num = 0;
+
+	FILE* question_file;
+	FILE* answer_file;
+	if ((question_file = fopen("Exercise.txt", "a+")) == NULL)
+	{
+		printf("You can't open the file!\n");
+		exit(1);
+	}
+	if ((answer_file = fopen("Answers.txt", "a+")) == NULL)
+	{
+		printf("You can't open the file!\n");
+		exit(1);
+	}
 
 	while (number)
 	{
@@ -93,23 +107,16 @@ void CreatQuestions(int number, int range)
 		//非负判断
 
 		number--;
-	}
-
-	FILE* question_file;
-	FILE* answer_file;
-	if ((question_file = fopen("Exercise.txt", "a+")) == NULL)
-	{
-		cout << "You can't open the file!\n" << endl;
-		exit(1);
-	}
-	if ((answer_file = fopen("Answers.txt", "a+")) == NULL)
-	{
-		cout << "You can't open the file!\n" << endl;
-		exit(1);
-	}
-	WriteFile(figure, operate, type_fig, num_fig, num_ope, tag_ope, question_file);
+		title_num++;
 
 
+
+		printf("参数是%d,%d,%d,%d,%d", type_fig, num_fig, num_ope, tag_ope,number);
+		WriteFile(figure, operate, type_fig, num_fig, num_ope, tag_ope, question_file);
+
+	}
+
+	printf( "已生成，请查看文件");
 
 }
 

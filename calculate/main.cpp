@@ -29,13 +29,16 @@ int Sequence(int figure[], char operate[], int type_fig, int num_fig, int num_op
 int main()
 {
 	int number,range;
+	char ct;
 	
-	printf("请输入题目个数\n");
-	scanf("%d", &number);
-	printf("请输入数值范围\n");
-	scanf("%d", &range);
-	CreatQuestions(number, range);
-
+	
+	
+		printf("请输入题目个数\n");
+		scanf("%d", &number);
+		printf("请输入数值范围\n");
+		scanf("%d", &range);
+		CreatQuestions(number, range);
+		system("pause");
 
 	return 0;
 }
