@@ -18,6 +18,7 @@ extern int title_num;
 void JudgeNumber(int fenzi, int fenmu, char s[]);
 int Sequence(int figure[], char opetate[], int type_fig, int num_fig, int num_ope, int tag_ope);
 
+
 Status CalAnswer(int figure[], char operate[], int type_fig, int num_fig, int num_ope, int tag_ope, char ans[])
 {
 	int sum, i, m, t[2], f[8];	//t[0]·Ö×Ó£¬t[1]·ÖÄ¸

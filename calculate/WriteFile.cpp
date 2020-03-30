@@ -22,7 +22,7 @@ void WriteFile(int figure[], char operate[], int type_fig, int num_fig, int num_
 		fseek(file, 0, SEEK_END);
 		if (type_fig == 0)     //数值都是自然数
 		{
-			if (tag_ope == 0)    //表达式中没有括号
+			if (tag_ope == 10)    //表达式中没有括号
 			{
 				fprintf(file, "%d.  ", title_num);
 				for (int i = 0; i < num_fig; i++)
@@ -33,7 +33,7 @@ void WriteFile(int figure[], char operate[], int type_fig, int num_fig, int num_
 				}
 				fputs("\r\n", file);
 			}
-			else if (tag_ope != 0)       //表达式中有括号
+			else if (tag_ope != 10)       //表达式中有括号
 			{
 				switch (num_fig)
 				{
@@ -64,7 +64,7 @@ void WriteFile(int figure[], char operate[], int type_fig, int num_fig, int num_
 
 		else if (type_fig == 1)    //数值中有分数
 		{
-			if (tag_ope == 0)       //表达式无括号
+			if (tag_ope == 10)       //表达式无括号
 			{
 				fprintf(file, "%d.  ", title_num);
 				for (int i = 0; i < num_fig; i++)
@@ -79,7 +79,7 @@ void WriteFile(int figure[], char operate[], int type_fig, int num_fig, int num_
 				fputs("\r\n", file);
 			}
 
-			else if (tag_ope != 0)    //表达式有括号
+			else if (tag_ope != 10)    //表达式有括号
 			{
 				switch (num_fig)
 				{

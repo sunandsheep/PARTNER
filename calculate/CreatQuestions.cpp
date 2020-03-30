@@ -21,7 +21,7 @@ void WriteFile(int figure[], char operate[], int type_fig, int num_fig, int num_
 //创建题目
 void CreatQuestions(int number, int range)
 {
-	int num_ope, type_ope, num_fig, type_fig ,tag_ope;
+	int num_ope, type_ope, num_fig, type_fig, tag_ope =10;
 	int figure[8];
 	char operate[3];
 
@@ -31,7 +31,7 @@ void CreatQuestions(int number, int range)
 
 	while (number)
 	{
-		int i, rand1, tag_ope = 10;
+		int i, rand1;
 		num_ope = (rand() % 3) + 1;
 		num_fig = num_ope + 1;
 

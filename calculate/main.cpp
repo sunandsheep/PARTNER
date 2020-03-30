@@ -29,30 +29,17 @@ int Sequence(int figure[], char operate[], int type_fig, int num_fig, int num_op
 int main()
 {
 	int number,range;
-	FILE* question_file;
-	FILE* answer_file;
-
-
+	
 	printf("请输入题目个数\n");
 	scanf("%d", &number);
 	printf("请输入数值范围\n");
 	scanf("%d", &range);
 	CreatQuestions(number, range);
 
-	if ((question_file = fopen("Exercise.txt", "a+")) == NULL)
-	{
-		cout << "You can't open the file!\n" << endl;
-		exit(1);
-	}
-	if ((answer_file = fopen("Answers.txt", "a+")) == NULL)
-	{
-		cout << "You can't open the file!\n" << endl;
-		exit(1);
-	}
-
 
 	return 0;
 }
+
 
 
 
