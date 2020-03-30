@@ -14,12 +14,14 @@ using namespace std;
 typedef int Status;
 extern int title_num;
 
+void WriteFile(int figure[], char operate[], int type_fig, int num_fig, int num_ope, int tag_ope, FILE* file);
+
 
 
 //创建题目
 void CreatQuestions(int number, int range)
 {
-	int num_ope, type_ope, num_fig, type_fig;
+	int num_ope, type_ope, num_fig, type_fig ,tag_ope;
 	int figure[8];
 	char operate[3];
 
@@ -92,6 +94,22 @@ void CreatQuestions(int number, int range)
 
 		number--;
 	}
+
+	FILE* question_file;
+	FILE* answer_file;
+	if ((question_file = fopen("Exercise.txt", "a+")) == NULL)
+	{
+		cout << "You can't open the file!\n" << endl;
+		exit(1);
+	}
+	if ((answer_file = fopen("Answers.txt", "a+")) == NULL)
+	{
+		cout << "You can't open the file!\n" << endl;
+		exit(1);
+	}
+	WriteFile(figure, operate, type_fig, num_fig, num_ope, tag_ope, question_file);
+
+
 
 }
 
