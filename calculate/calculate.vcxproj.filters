@@ -21,5 +21,11 @@
     <ClCompile Include="WriteFile.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="CreatQuestions.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CalAnswer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
