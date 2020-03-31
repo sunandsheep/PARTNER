@@ -19,10 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CalAnswer.cpp" />
-    <ClCompile Include="CreatQuestions.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="WriteFile.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
