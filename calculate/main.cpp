@@ -23,7 +23,6 @@ double Figure[10050][4]; //题目数字
 int xuhao;
 
 
-
 void CreatQuestions(int number, int range);	//创建题目
 void JudgeNumber(int ans[]);		//判断真分数是否需要化简
 Status JudgeRepeat(int figure[], char opetate[], int num_ope);				//判断题目是否重复
@@ -32,26 +31,48 @@ void WriteFile(int figure[], char operate[], int num_fig, int num_ope, int tag_o
 void WriteAnswer(int ans[], FILE* file);		//答案放入文件
 int Sequence(int figure[], char operate[], int num_fig, int num_ope, int tag_ope); //计算顺序
 int gcd(int x, int y);		//求最大公因数
+int ChangeNumber(char* question_read, int i[]);//把数字字符串转换为整形数字
+void CanShu(int change, char* question_read, int i[], int ctag_ope[], int fig_num[], int ope_num[], int figure[], int ans[], char operate[]);//得出计算结果所需的参数
+void CompareAnswer();          //答案比较函数
+void ChangeAnswer(int ans[], char answer_cal[][20]);     //把计算出的结果转化为字符串
 
 int main()
 {
 	int number;
-	printf("请输入题目个数\n");
-	scanf("%d", &number);
+	char operate, judge = 'y';
+	cout << "----------欢迎使用四则运算程序-----------" << endl;
+	cout << "        1.生成题目。" << endl;
+	cout << "        2.对所给题目和答案进行判定。" << endl;
 
-	int range;
-	printf("请输入数值范围\n");
-	scanf("%d", &range);
+	while (judge == 'y')
+	{
+		cout << "        请输入你想做的操作：输入1或者2：" << endl;
+		cin >> operate;
+		if (operate == '1') {
+			printf("请输入题目个数\n");
+			scanf("%d", &number);
 
-	CreatQuestions(number, range);
+			int range;
+			printf("请输入数值范围\n");
+			scanf("%d", &range);
 
+			CreatQuestions(number, range);
+		}
+		else if (operate == '2')
+			CompareAnswer();
+		else
+			cout << "输入错误" << endl;
+		cout << "还要继续操作吗？输入y或n" << endl;
+		cin >> judge;
+	}
+	system("pause");
 	return 0;
 }
 
 //创建题目
 void CreatQuestions(int number, int range)
 {
-	int num_ope, type_ope, num_fig, type_fig, t;
+	int num_ope, num_fig, type_fig, t;
 	int figure[8], ans[3];
 	char operate[3];
 
@@ -77,7 +98,7 @@ void CreatQuestions(int number, int range)
 		num_ope = (rand() % 3) + 1;		//确定运算符数
 		num_fig = num_ope + 1;			//数字个数 是 运算符数+1
 
-		//数字为自然数时为1，真分数时下面代码会对相应分母赋值
+										//数字为自然数时为1，真分数时下面代码会对相应分母赋值
 		figure[4] = figure[5] = figure[6] = figure[7] = 1;
 
 		//答案赋值，避免上次结果对这次进行影响
@@ -408,6 +429,7 @@ Status CalAnswer(int figure[], char operate[], int num_fig, int num_ope, int tag
 void WriteFile(int figure[], char operate[], int num_fig, int num_ope, int tag_ope, FILE* file)
 {
 	if (file == NULL) return;
+	if (title_num != 1) fprintf(file, "\n");
 	printf("生成了第 %d 道\n", title_num);
 	int i;
 	fprintf(file, "题目%d:   ", title_num);
@@ -420,9 +442,9 @@ void WriteFile(int figure[], char operate[], int num_fig, int num_ope, int tag_o
 			else fprintf(file, "%d", figure[i]);
 			if (i + 1 == tag_ope % 10) fprintf(file, ")");
 			if (operate[i] == '*')			//输出运算符
-				fprintf(file, "  ×  ");
+				fprintf(file, "  *  ");
 			else if (operate[i] == '/')
-				fprintf(file, "  ÷  ");
+				fprintf(file, "  /  ");
 			else
 				fprintf(file, "  %c  ", operate[i]);
 		}
@@ -438,16 +460,16 @@ void WriteFile(int figure[], char operate[], int num_fig, int num_ope, int tag_o
 			else fprintf(file, "%d", figure[i]);
 
 			if (operate[i] == '*')
-				fprintf(file, "  ×  ");
+				fprintf(file, "  *  ");
 			else if (operate[i] == '/')
-				fprintf(file, "  ÷  ");
+				fprintf(file, "  /  ");
 			else
 				fprintf(file, "  %c  ", operate[i]);
 		}
 		if (figure[i + 4] != 1) fprintf(file, "%d/%d", figure[i], figure[i + 4]);
 		else fprintf(file, "%d", figure[i]);
 	}
-	fprintf(file, " =\n");
+	fprintf(file, " =");
 }
 
 //答案放入文件
@@ -551,4 +573,273 @@ int gcd(int x, int y)
 		y = t;
 	}
 	return x;
+}
+
+
+//答案对比函数
+void CompareAnswer()
+{	//解析题目参数
+	int cnum_ope, ctag_ope[3], i[2], fig_num[2], ope_num[2];
+	int figure[8], ans[3];
+	char operate[4];
+	char answer_cal[6][20];
+	//读取文件参数
+	char  question_read[100];
+	char answer_read[50];
+	//结果参数	
+	int correct_num = 0, wrong_num = 0, title_n = 1;
+	int correct_tn[10000], wrong_tn[10000];
+
+	FILE* question_file;
+	FILE* answer_file;
+	FILE* Grade_file;
+	char exercise[20], answer[20];
+
+
+	cout << "请输入练习题文件名" << endl;
+	cin >> exercise;
+	cout << "请输入答案文件名" << endl;
+	cin >> answer;
+	if ((question_file = fopen(exercise, "r")) == NULL)
+	{
+		printf("You can't open the file!\n");
+		exit(1);
+	}
+	if ((answer_file = fopen(answer, "r")) == NULL)
+	{
+		printf("You can't open the file!\n");
+		exit(1);
+	}
+	/*
+	if ((question_file = fopen("Exercise.txt", "r")) == NULL)
+	{
+	printf("You can't open the file!\n");
+	exit(1);
+	}
+	if ((answer_file = fopen("Answers.txt", "r")) == NULL)
+	{
+	printf("You can't open the file!\n");
+	exit(1);
+	}
+	*/
+	printf("开始处理\n");
+
+	while (!feof(question_file))
+	{
+		cout << "\n";
+		fgets(question_read, 100, question_file);  //将答案
+		fgets(answer_read, 50, answer_file);
+		printf("%s", question_read);
+
+		int change = -1;
+		ope_num[0] = 0, fig_num[0] = 0;
+		ctag_ope[0] = ctag_ope[2] = 0, ctag_ope[1] = 1, i[0] = 0;
+		for (int f = 0; f < 8; f++) {
+			figure[f] = 1;
+		}
+		//答案赋值，避免上次结果对这次进行影响
+		ans[0] = ans[1] = 0;   ans[2] = 1;
+
+		//处理题目
+		for (*i = 8; question_read[i[0]] != '='; i[0]++)
+		{
+			change = ChangeNumber(question_read, i);  //将字符转换为数字
+
+			CanShu(change, question_read, i, ctag_ope, fig_num, ope_num, figure, ans, operate);  //得出参数
+		}
+
+		cnum_ope = *fig_num - 1;
+		ctag_ope[0] = ctag_ope[1] * 10 + ctag_ope[2];
+
+		CalAnswer(figure, operate, *fig_num, cnum_ope, ctag_ope[0], ans);  //利用参数计算答案
+
+		ChangeAnswer(ans, answer_cal);   //把答案转化为字符串
+		cout << "计算出的答案:" << answer_cal[0] << endl;
+
+		//处理读出的答案字符串，将答案字符串读入数组
+		char ans_compare[20] = "0";
+		int c = 0;
+		for (int j = 10; answer_read[j] != '\0'; j++)
+		{
+			if ((answer_read[j] >= '0' && answer_read[j] <= '9') || answer_read[j] == 39 || answer_read[j] == '/')
+			{
+				ans_compare[c] = answer_read[j];
+				c++;
+			}
+		}
+		cout << "读取的答案：" << ans_compare << endl;
+
+		if (0 == strcmp(answer_cal[0], ans_compare))  //比较答案是否正确
+		{
+			correct_tn[correct_num] = title_n;
+			correct_num++;
+		}
+		else
+		{
+			wrong_tn[wrong_num] = title_n;
+			wrong_num++;
+		}
+		title_n++;
+	}
+
+
+
+	if ((Grade_file = fopen("Grade.txt", "a+")) == NULL)
+	{
+		printf("You can't open the file!\n");
+		exit(1);
+	}
+	//统计正确、错误答案
+	fprintf(Grade_file, "Correct :%d", correct_num);
+	if (correct_num != 0)
+		fprintf(Grade_file, "(");
+	for (int correct = 0; correct < correct_num; correct++)
+	{
+
+		fprintf(Grade_file, "%d,", correct_tn[correct]);
+		if (correct + 1 == correct_num)
+			fprintf(Grade_file, ")\n");
+	}
+
+	fprintf(Grade_file, "Wrong :%d", wrong_num);
+	if (wrong_num != 0)
+		fprintf(Grade_file, "(");
+	for (int wrong = 0; wrong < wrong_num; wrong++)
+	{
+		fprintf(Grade_file, "%d,", wrong_tn[wrong]);
+		if (wrong + 1 == wrong_num)
+			fprintf(Grade_file, ")\n");
+	}
+
+
+	fclose(question_file);
+	fclose(answer_file);
+
+}
+
+int ChangeNumber(char* question_read, int *i)    //把数字字符串转换为整形数字
+{
+	int change = -1;
+
+	if (question_read[*i] >= '0' && question_read[*i] <= '9')
+	{
+		if (question_read[*i + 1] >= '0' && question_read[*i + 1] <= '9')
+			if (question_read[*i + 2] >= '0' && question_read[*i + 2] <= '9')
+			{
+				change = (question_read[*i] - 48) * 100 + (question_read[*i + 1] - 48) * 10 + (question_read[*i + 2] - 48);
+				*i += 2;
+				// 转成百位数  
+			}
+			else
+			{
+				change = (question_read[*i] - 48) * 10 + (question_read[*i + 1] - 48);
+				*i += 1;
+				//  转成十位数 
+			}
+		else
+		{
+			change = question_read[*i] - 48;
+			// 转成个位数  
+		}
+		return change;
+	}
+	return -1;
+}
+
+void CanShu(int change, char* question_read, int i[], int ctag_ope[], int fig_num[], int ope_num[], int figure[], int ans[], char operate[]) //得出计算结果所需的参数
+{
+	char fuhao[3] = "0";
+	int tag = 100;
+	if (change >= 0)
+	{
+		for (int c = 3; c > 0; c--)
+		{
+			if (change >= tag)   //判定该数的位数
+			{
+				if (question_read[*i - c] == '/')    //数字前有分号则将该数存为分母
+				{
+					figure[(*fig_num) + 3] = change;
+				}
+				else
+				{
+					figure[*fig_num] = change;  //遇到分子运算数才加一
+					(*fig_num)++;
+				}
+				if (question_read[*i - c] == '(')   //数字前有括号则记录该位置
+				{
+					ctag_ope[1] = *fig_num;
+				}
+				break;
+			}
+			if (tag == 10)
+				tag = 0;
+			else
+				tag /= 10;
+		}
+		if (question_read[*i + 1] == ')')
+		{
+			ctag_ope[2] = *fig_num;
+		}
+	}
+	else
+	{
+		if (question_read[*i] == ' ' && question_read[*i + 1] == ' ')   //获取运算符
+		{
+			if (question_read[*i + 2] == '+' || question_read[*i + 2] == '-' || question_read[*i + 2] == '*' || question_read[*i + 2] == '/')
+			{
+				operate[*ope_num] = question_read[*i + 2];
+				(*ope_num)++;
+			}
+		}
+	}
+}
+
+void ChangeAnswer(int ans[], char answer_cal[][20])    //把计算出的结果转化为字符串
+{	//ar0存结果，ar1存整数，ar2存分子，ar3存分母,ar4存',ar5存/
+	strcpy(answer_cal[0], "0");
+	strcpy(answer_cal[1], "0");
+	strcpy(answer_cal[2], "0");
+	strcpy(answer_cal[3], "0");
+	strcpy(answer_cal[4], "'");
+	strcpy(answer_cal[5], "/");
+	if (ans[1] == 0)
+	{
+		_itoa(ans[0], answer_cal[0], 10);
+		cout << answer_cal[0] << endl;
+	}
+	else
+	{
+		if (ans[2] != 1)
+		{
+			if (ans[0] == 0)  //假分数
+			{
+				_itoa(ans[1], answer_cal[2], 10);
+				_itoa(ans[2], answer_cal[3], 10);
+
+				strcat(answer_cal[2], answer_cal[5]);
+				strcat(answer_cal[2], answer_cal[3]);
+				strcpy(answer_cal[0], answer_cal[2]);
+				cout << answer_cal[0] << endl;
+			}
+			else    //真分数
+			{
+				_itoa(ans[0], answer_cal[1], 10);
+				_itoa(ans[1], answer_cal[2], 10);
+				_itoa(ans[2], answer_cal[3], 10);
+
+				strcat(answer_cal[2], answer_cal[5]);
+				strcat(answer_cal[2], answer_cal[3]);
+				strcat(answer_cal[1], answer_cal[4]);
+				strcat(answer_cal[1], answer_cal[2]);
+				strcpy(answer_cal[0], answer_cal[1]);
+				cout << answer_cal[0] << endl;
+			}
+		}
+		else //自然数
+		{
+			_itoa(ans[1], answer_cal[2], 10);
+			strcpy(answer_cal[0], answer_cal[2]);
+			cout << answer_cal[0] << endl;
+		}
+	}
 }
